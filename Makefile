@@ -11,7 +11,7 @@ NACL_SDK_ROOT ?= $(abspath $(HOME)/pepper)
 
 # Project Build flags
 WARNINGS := -Wno-long-long -Wall -Wswitch-enum -pedantic -Werror
-CXXFLAGS := -pthread -std=gnu++11 $(WARNINGS)
+CXXFLAGS := -pthread -std=gnu++98 $(WARNINGS)
 
 #
 # Compute tool paths
@@ -24,23 +24,22 @@ RM := $(OSHELPERS) rm
 PNACL_TC_PATH := $(abspath $(NACL_SDK_ROOT)/toolchain/$(OSNAME)_pnacl)
 PNACL_CXX := $(PNACL_TC_PATH)/bin/pnacl-clang++
 PNACL_FINALIZE := $(PNACL_TC_PATH)/bin/pnacl-finalize
-CXXFLAGS := -I$(NACL_SDK_ROOT)/include $(CXXFLAGS) 
+CXXFLAGS := -I$(NACL_SDK_ROOT)/include
 LDFLAGS := -L$(NACL_SDK_ROOT)/lib/pnacl/Release -lppapi_cpp -lppapi
 
-# Declare the ALL target first, to make the 'all' target the default build
-all: monte_carlo.pexe
 
-test_mc: monte_carlo.hpp test_mc.cpp
-	$(CXX) -o test_mc test_mc.cpp -std=c++11
+# Declare the ALL target first, to make the 'all' target the default build
+all: hello_tutorial.pexe
 
 clean:
-	$(RM) monte_carlo.pexe monte_carlo.bc
+	$(RM) hello_tutorial.pexe hello_tutorial.bc
 
-monte_carlo.bc: monte_carlo.cpp monte_carlo.hpp instance_factory.hpp mc_instance.hpp singleton_factory.hpp model_circle.cpp model_parabola.cpp
-	$(PNACL_CXX) -o $@ $< model_circle.cpp model_parabola.cpp -O2 $(CXXFLAGS) $(LDFLAGS)
+hello_tutorial.bc: hello_tutorial.cc
+	$(PNACL_CXX) -o $@ $< -O2 $(CXXFLAGS) $(LDFLAGS)
 
-monte_carlo.pexe: monte_carlo.bc
+hello_tutorial.pexe: hello_tutorial.bc
 	$(PNACL_FINALIZE) -o $@ $<
 
-serve:
+.PHONY: serve
+serve: all
 	python -m SimpleHTTPServer 8000
