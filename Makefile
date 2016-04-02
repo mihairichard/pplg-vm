@@ -11,7 +11,7 @@ NACL_SDK_ROOT ?= $(abspath $(HOME)/pepper)
 
 # Project Build flags
 WARNINGS := -Wno-long-long -Wall -Wswitch-enum -pedantic -Werror
-CXXFLAGS := -pthread -std=gnu++98 $(WARNINGS)
+CXXFLAGS := -pthread -std=c++11 $(WARNINGS)
 
 #
 # Compute tool paths
