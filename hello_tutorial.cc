@@ -5,15 +5,27 @@
 #include "ppapi/cpp/graphics_2d.h"
 #include "ppapi/cpp/view.h"
 #include "ppapi/cpp/completion_callback.h"
+#include "ppapi/cpp/input_event.h"
 #include "ppapi/utility/completion_callback_factory.h"
 
-struct HelloTutorialModule;
-
-struct HelloTutorialInstance : public pp::Instance {
-
+class HelloTutorialInstance : public pp::Instance {
+public:
  	HelloTutorialInstance(PP_Instance instance) :
   	pp::Instance(instance),
-	cb_factory_(this) {}
+	cb_factory_(this) {
+		RequestInputEvents(PP_INPUTEVENT_CLASS_MOUSE | PP_INPUTEVENT_CLASS_KEYBOARD);
+	}
+
+	bool HandleInputEvent(const pp::InputEvent& event) {
+		switch(event.GetType()) {
+			case PP_INPUTEVENT_TYPE_KEYDOWN: {
+				pp::KeyboardInputEvent key_event(event);
+				Log("Keyboard input %d", key_event.GetKeyCode());
+			}
+			default:
+				return false;
+		}
+	}
 
 	void DidChangeView(const pp::View& view) {
   		LogToConsole(PP_LOGLEVEL_LOG, "DidChangeView");
@@ -28,7 +40,7 @@ struct HelloTutorialInstance : public pp::Instance {
 			}
 		}
 		context_.ReplaceContents(&image_);
-  		Log("Flush %d", context_.Flush(cb_factory_.NewCallback(&HelloTutorialInstance::DidFlush)));
+  		context_.Flush(cb_factory_.NewCallback(&HelloTutorialInstance::DidFlush));
 	}
 
 	void DidFlush(int32_t status) {
@@ -50,7 +62,7 @@ struct HelloTutorialInstance : public pp::Instance {
 		pp::Var value(buf);
 		console->Log(pp_instance(), PP_LOGLEVEL_LOG, value.pp_var());
 	}
-
+private:
 	pp::Graphics2D context_;
 	pp::ImageData image_;
 	pp::CompletionCallbackFactory<HelloTutorialInstance> cb_factory_;
@@ -58,8 +70,7 @@ struct HelloTutorialInstance : public pp::Instance {
 
 struct HelloTutorialModule : public pp::Module {
   pp::Instance* CreateInstance(PP_Instance instance) {
-    auto inst = new HelloTutorialInstance(instance);
-    return inst;
+    return new HelloTutorialInstance(instance);
   }
 };
 
