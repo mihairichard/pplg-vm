@@ -1,6 +1,5 @@
 
-LAMENES_SOURCES	= lamenes.c lame6502/lame6502.c lame6502/disas.c lame6502/debugger.c romloader.c ppu.c input.c mario_nes.c
-LIB_SOURCES = lib/str_chrchk.c lib/str_cut.c lib/str_replace.c
+LAMENES_SOURCES	= lamenes.c lame6502/lame6502.c lame6502/disas.c romloader.c ppu.c input.c mario_nes.c
 DESKTOP_SOURCES = $(wildcard system/desktop/*.c)
 CC = gcc
 CFLAGS = -O3 -fomit-frame-pointer -Wall -I/usr/local/include -I. `sdl2-config --cflags`
@@ -43,6 +42,6 @@ hello_tutorial.pexe: hello_tutorial.bc
 serve: all
 	python -m SimpleHTTPServer 8000
 	
-lamenes: $(LAMENES_SOURCES) $(LIB_SOURCES) $(DESKTOP_SOURCES)
-	$(CC) -o lamenes $(CFLAGS) $(LAMENES_SOURCES) $(LIB_SOURCES) $(DESKTOP_SOURCES) $(LDFLAGS_NES)
+lamenes: $(LAMENES_SOURCES) $(DESKTOP_SOURCES)
+	$(CC) -o lamenes $(CFLAGS) $(LAMENES_SOURCES) $(DESKTOP_SOURCES) $(LDFLAGS_NES)
 

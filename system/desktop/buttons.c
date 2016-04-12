@@ -6,7 +6,6 @@
 #include <SDL2/SDL.h>
 
 #include "lame6502/lame6502.h"
-#include "lame6502/debugger.h"
 
 #include "lamenes.h"
 #include "input.h"
@@ -103,16 +102,6 @@ void poll_buttons(void) {
         reset_emulation();
         break;
 
-        case SDLK_F3:
-        /* load state */
-        load_state();
-        break;
-
-        case SDLK_F6:
-        /* save state */
-        save_state();
-        break;
-
         case SDLK_F10:
         if(enable_background == 1) {
           enable_background = 0;
@@ -126,14 +115,6 @@ void poll_buttons(void) {
           enable_sprites = 0;
         } else {
           enable_sprites = 1;
-        }
-        break;
-
-        case SDLK_F12:
-        if(startdebugger > 0) {
-          disassemble = 1;
-          hit_break = 1;
-          debugger();
         }
         break;
 

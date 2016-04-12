@@ -55,9 +55,6 @@ extern int width;
 extern int sdl_screen_height;
 extern int sdl_screen_width;
 
-void load_state();
-void save_state();
-
 extern int enable_background;
 extern int enable_sprites;
 

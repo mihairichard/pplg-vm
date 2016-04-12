@@ -42,7 +42,6 @@
 #include <stdlib.h>
 
 #include "lame6502/lame6502.h"
-#include "lame6502/debugger.h"
 #include "lame6502/disas.h"
 #include "lame6502/instructions.h"
 
@@ -55,9 +54,6 @@
 #include "system/buttons.h"
 #include "system/display.h"
 #include "system/sleep.h"
-
-#include "lib/str_chrchk.h"
-#include "lib/str_replace.h"
 
 /* included mappers */
 #include "mappers/mmc1.h"	// 1
@@ -107,192 +103,7 @@ int skipframe = 0;
 
 int sdl_delay = 10;
 
-char *savfile;
-char *statefile;
-
 long romlen;
-
-FILE *sav_fp;
-
-void
-open_sav()
-{
-	sav_fp = fopen(savfile,"rb");
-
-	if(sav_fp) {
-		printf("[*] %s found! loading into sram...\n",savfile);
-		fseek(sav_fp,0,SEEK_SET);
-		fread(&memory[0x6000],1,8192,sav_fp);
-
-		fclose(sav_fp);
-	}
-}
-
-void
-write_sav()
-{
-	sav_fp = fopen(savfile,"wb");
-	fwrite(&memory[0x6000],1,8192,sav_fp);
-	fclose(sav_fp);
-}
-
-void
-load_state()
-{
-	int pf;
-
-	FILE *lst_fp;
-
-	fprintf(stdout,"[*] loading state from file: %s\n",statefile);
-
-	lst_fp = fopen(statefile,"rb");
-
-	if(lst_fp) {
-		fread(&program_counter,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,2,SEEK_CUR);
-		fread(&stack_pointer,1,1,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,3,SEEK_CUR);
-		fread(&status_register,1,1,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,4,SEEK_CUR);
-		fread(&x_reg,1,1,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,5,SEEK_CUR);
-		fread(&y_reg,1,1,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,6,SEEK_CUR);
-		fread(&accumulator,1,1,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,7,SEEK_CUR);
-		fread(&pf,1,1,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,8,SEEK_CUR);
-		fread(&ppu_control1,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,10,SEEK_CUR);
-		fread(&ppu_control2,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,13,SEEK_CUR);
-		fread(&ppu_addr_h,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,14,SEEK_CUR);
-		fread(&ppu_addr,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,16,SEEK_CUR);
-		fread(&ppu_addr_tmp,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,18,SEEK_CUR);
-		fread(&ppu_status,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,20,SEEK_CUR);
-		fread(&ppu_status_tmp,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,22,SEEK_CUR);
-		fread(&sprite_address,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,24,SEEK_CUR);
-		fread(&ppu_bgscr_f,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,26,SEEK_CUR);
-		fread(&loopyT,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,28,SEEK_CUR);
-		fread(&loopyV,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,30,SEEK_CUR);
-		fread(&loopyX,1,2,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,32,SEEK_CUR);
-		fread(&memory[0x0000],1,65536,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,65568,SEEK_CUR);
-		fread(&ppu_memory[0x0000],1,16384,lst_fp);
-
-		fseek(lst_fp,0,SEEK_SET);
-		fseek(lst_fp,81952,SEEK_CUR);
-		fread(&sprite_memory[0x0000],1,256,lst_fp);
-
-		SET_SR(pf)
-
-		fclose(lst_fp);
-
-		fprintf(stdout,"[*] done!\n");
-	} else {
-		fprintf(stdout,"[!] no save state file found!\n");
-	}
-}
-
-void
-save_state()
-{
-	int pf;
-
-	FILE *sst_fp;
-
-	fprintf(stdout,"[*] saving state to file: %s\n",statefile);
-
-	sst_fp = fopen(statefile,"wb");
-
-	pf = ((sign_flag ? 0x80 : 0) |
-		(zero_flag ? 0x02 : 0) |
-		(carry_flag ? 0x01 : 0) |
-		(interrupt_flag ? 0x04 : 0) |
-		(decimal_flag ? 0x08 : 0) |
-		(overflow_flag ? 0x40 : 0) |
-		(break_flag ? 0x10 : 0) | 0x20);
-
-	fwrite(&program_counter,1,2,sst_fp);
-	fwrite(&stack_pointer,1,1,sst_fp);
-	fwrite(&status_register,1,1,sst_fp);
-	fwrite(&x_reg,1,1,sst_fp);
-	fwrite(&y_reg,1,1,sst_fp);
-	fwrite(&accumulator,1,1,sst_fp);
-	fwrite(&pf,1,1,sst_fp);
-
-	fwrite(&ppu_control1,1,2,sst_fp);
-	fwrite(&ppu_control2,1,2,sst_fp);
-	fwrite(&ppu_addr_h,1,2,sst_fp);
-	fwrite(&ppu_addr,1,2,sst_fp);
-	fwrite(&ppu_addr_tmp,1,2,sst_fp);
-	fwrite(&ppu_status,1,2,sst_fp);
-	fwrite(&ppu_status_tmp,1,2,sst_fp);
-	fwrite(&sprite_address,1,2,sst_fp);
-	fwrite(&ppu_bgscr_f,1,2,sst_fp);
-
-	fwrite(&loopyT,1,2,sst_fp);
-	fwrite(&loopyV,1,2,sst_fp);
-	fwrite(&loopyX,1,2,sst_fp);
-
-	fwrite(&memory[0x0000],1,65536,sst_fp);
-	fwrite(&ppu_memory[0x0000],1,16384,sst_fp);
-	fwrite(&sprite_memory[0x0000],1,256,sst_fp);
-
-	fclose(sst_fp);
-
-	fprintf(stdout,"[*] done!\n");
-}
 
 /*
  * memory read handler
@@ -449,9 +260,6 @@ write_memory(unsigned int address,unsigned char data)
 
 	/* SRAM Registers */
 	if(address > 0x5fff && address < 0x8000) {
-		if(SRAM == 1)
-			write_sav();
-
 		memory[address] = data;
 		return;
 	}
@@ -483,12 +291,6 @@ write_memory(unsigned int address,unsigned char data)
 	if(MAPPER == 4) {
 		mmc3_access(address,data);
 		return;
-	}
-
-	if(startdebugger > 0) {
-		disassemble = 1;
-		hit_break = 1;
-		debugger();
 	}
 
 	memory[address] = data;
@@ -687,13 +489,6 @@ int main(int argc, char *argv[]) {
 	if(MAPPER == 4)
 		mmc3_reset();
 
-	statefile = str_replace(romfn,".nes",".sst");
-	savfile = str_replace(romfn,".nes",".sav");
-
-	if(SRAM == 1) {
-		open_sav();
-	}
-
 	if(pal == 1) {
 		height = 240;
 		width = 256;
@@ -745,12 +540,6 @@ int main(int argc, char *argv[]) {
 	reset_input();
 
 	printf("[*] LameNES starting emulation!\n");
-
-	if(startdebugger == 2) {
-		disassemble = 1;
-		hit_break = 1;
-		debugger();
-	}
 
 	if(pal == 1) {
 		start_int = 341;

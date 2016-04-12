@@ -320,10 +320,4 @@ case 0x98: if(disassemble == 1)disas("TYA","NODATA"); TRANSFER_REG(y_reg,accumul
 default:
 printf("[%d]: error -> unrecognized instruction at offset 0x%x! opcode -> [%x]\n",debug_cnt-1,program_counter -1,opcode);
 
-/* used in LameNES */
-if(startdebugger > 0) {
-	disassemble = 1;
-	hit_break = 1;
-	debugger();
-}
 break;

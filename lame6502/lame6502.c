@@ -46,7 +46,6 @@
 
 #include "instructions.h"
 #include "disas.h"
-#include "debugger.h"
 
 #include "../lamenes.h"
 
@@ -233,32 +232,12 @@ CPU_execute(int cycles) {
 
 		update_status_register();
 
-		/* used in LameNES */
-		if(debug_cnt == stop_at_debug_cnt) {
-			printf("instruction counter break reached!\n");
-			disassemble = 1;
-			hit_break = 1;
-			debugger();
-		}
-
 		opcode=memory[program_counter++];
 
 		switch(opcode) {
 			#include "opcodes.h"
 		}
 
-		/* used in LameNES */
-		if(startdebugger > 0) {
-			if(hit_break == 1) {
-				debugger();
-			} else {
-				if(program_counter == breakpoint) {
-					printf("breakpoint reached!\n");
-					hit_break = 1;
-					disassemble = 1;
-				}
-			}
-		}
 	} while(cycle_count > 0);
 
 	return cycles - cycle_count;
