@@ -1,12 +1,10 @@
-# Copyright (c) 2013 The Native Client Authors. All rights reserved.
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
 
-#
-# GNU Make based build file.  For details on GNU Make see:
-# http://www.gnu.org/software/make/manual/make.html
-#
-
+LAMENES_SOURCES	= lamenes.c lame6502/lame6502.c lame6502/disas.c lame6502/debugger.c romloader.c ppu.c input.c
+LIB_SOURCES = lib/str_chrchk.c lib/str_cut.c lib/str_replace.c
+DESKTOP_SOURCES = $(wildcard system/desktop/*.c)
+CC = gcc
+CFLAGS = -O3 -fomit-frame-pointer -Wall -I/usr/local/include -I. `sdl2-config --cflags`
+LDFLAGS_NES = -L/usr/local/lib -L/usr/X11R6/lib `sdl2-config --libs`
 NACL_SDK_ROOT ?= $(abspath $(HOME)/pepper)
 
 # Project Build flags
@@ -33,6 +31,7 @@ all: hello_tutorial.pexe
 
 clean:
 	$(RM) hello_tutorial.pexe hello_tutorial.bc
+	$(RM) lamenes
 
 hello_tutorial.bc: hello_tutorial.cc
 	$(PNACL_CXX) -o $@ $< -O2 $(CXXFLAGS) $(LDFLAGS)
@@ -43,3 +42,7 @@ hello_tutorial.pexe: hello_tutorial.bc
 .PHONY: serve
 serve: all
 	python -m SimpleHTTPServer 8000
+	
+lamenes: $(LAMENES_SOURCES) $(LIB_SOURCES) $(DESKTOP_SOURCES)
+	$(CC) -o lamenes $(CFLAGS) $(LAMENES_SOURCES) $(LIB_SOURCES) $(DESKTOP_SOURCES) $(LDFLAGS_NES)
+
