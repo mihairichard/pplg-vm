@@ -1,5 +1,5 @@
 
-LAMENES_SOURCES	= lamenes.c lame6502/lame6502.c lame6502/disas.c lame6502/debugger.c romloader.c ppu.c input.c
+LAMENES_SOURCES	= lamenes.c lame6502/lame6502.c lame6502/disas.c lame6502/debugger.c romloader.c ppu.c input.c mario_nes.c
 LIB_SOURCES = lib/str_chrchk.c lib/str_cut.c lib/str_replace.c
 DESKTOP_SOURCES = $(wildcard system/desktop/*.c)
 CC = gcc

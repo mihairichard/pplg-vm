@@ -43,5 +43,5 @@ extern int SRAM;
 extern int MIRRORING;
 extern int VRAM;
 
-int analyze_header(char *romfn);
-int load_rom(char *romfn);
+int analyze_header(unsigned char* data, unsigned int size);
+int load_rom(unsigned char* data, unsigned int size);

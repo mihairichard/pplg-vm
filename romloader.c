@@ -55,11 +55,9 @@ int MIRRORING;
 char title[128];
 
 int
-analyze_header(char *romfn)
+analyze_header(unsigned char* data, unsigned int size)
 {
 	int i;
-
-	FILE *romfp;
 
 	/*
 	 * nes header is 15 bytes
@@ -67,22 +65,10 @@ analyze_header(char *romfn)
 	 */
 	header = (unsigned char *)malloc(15);
 
-	romfp=fopen(romfn,"rb");
-	if(!romfp) {
-		printf("[!] error loading rom: %s\n",romfn);
-		free(header);
-		return(1);
-	}
-
-	fseek(romfp, 0, 2);
-	romlen = ftell(romfp);
-
-	fseek(romfp,0,SEEK_SET);
+	romlen = size; 
 
 	/* read the first 15 bytes of the rom */
-	fread(&header[0],1,15,romfp);
-
-	fclose(romfp);
+	memcpy(header, data, 15);
 
 	printf("[*] analyzing rom header...\n");
 
@@ -264,20 +250,9 @@ analyze_header(char *romfn)
 }
 
 int
-load_rom(char *romfn)
+load_rom(unsigned char* data, unsigned int size)
 {
-	FILE *romfp;
-
-	romfp=fopen(romfn,"rb");
-	if(!romfp) {
-		fprintf(stdout,"[!] error loading %s\n",romfn);
-
-		return(1);
-	}
-
-	printf("[*] caching rom...\n");
-	fread(&romcache[0x0000],1,romlen,romfp);
-	fclose(romfp);
+	memcpy(romcache, data, size);
 
 	printf("[*] mapping rom...\n");
 

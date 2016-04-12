@@ -65,6 +65,9 @@
 #include "mappers/cnrom.h"	// 3
 #include "mappers/mmc3.h"	// 4
 
+/* static rom, avoid loading from file */
+#include "mario_nes.h"
+
 char romfn[256];
 
 /* cache the rom in memory to access the data quickly */
@@ -492,38 +495,6 @@ write_memory(unsigned int address,unsigned char data)
 }
 
 void
-show_header()
-{
-	fprintf(stdout,"\n"
-	"************************************************************\n"
-	"*** LameNES version 0.1 by Joey Loman <joey@lamenes.org> ***\n"
-	"************************************************************\n"
-	"\n"
-	);
-}
-
-void
-usage(char *pname)
-{
-	fprintf(stdout,"usage: %s [options] <rom-filename>\n\n"
-	"options:\n"
-	"\t-debug\t\t\t-> enable debugger (F12)\n"
-	"\t-startdebug\t\t-> enable debugger (F12) and start it immediately\n"
-	"\n"
-	"\t-scale <value>\t\t-> scale the screen\n"
-	"\t-fullscreen\t\t-> toggle fullscreen\n"
-	"\n"
-	"\t-frameskip <value>\t-> frameskip (speed up emulation)\n"
-	"\t-delay <value>\t\t-> delay (slow down emulation)\n"
-	"\n"
-	"\t-pal\t\t\t-> pal video mode (default)\n"
-	"\t-ntsc\t\t\t-> ntsc video mode\n\n"
-	,pname);
-
-	exit(1);
-}
-
-void
 start_emulation()
 {
 	int counter = 0;
@@ -627,7 +598,7 @@ reset_emulation()
 {
 	printf("[*] resetting emulation...\n");
 
-	if(load_rom(romfn) == 1) {
+	if(load_rom(get_mario_rom(), get_mario_rom_size())) {
 		free(sprite_memory);
 		free(ppu_memory);
 		free(memory);
@@ -680,72 +651,6 @@ int main(int argc, char *argv[]) {
 	int NTSC_VBLANK_CYCLE_TIMEOUT = (261-224) * NTSC_VBLANK_INT / 261;
 	int PAL_VBLANK_CYCLE_TIMEOUT = (313-240) * PAL_VBLANK_INT / 313;
 
-	show_header();
-
-	if(argc < 2) {
-		usage(argv[0]);
-	}
-
-	for(i = 0; i < argc; i++) {
-		if(i == 0) {
-			/* do nothing */
-		} else if(i == argc - 1) {
-			snprintf(romfn,sizeof(romfn),"%s",argv[i]);
-		} else if(!strcmp(argv[i],"-debug")) {
-			startdebugger = 1;
-		} else if(!strcmp(argv[i],"-startdebug")) {
-			startdebugger = 2;
-		} else if(!strcmp(argv[i],"-frameskip")) {
-			chr_check_result = str_chrchk(argv[i+1],"0123456789");
-
-			if((chr_check_result > 0) && (strlen(argv[i+1]) == chr_check_result)) {
-				frameskip = atoi(argv[i+1]);
-
-				i++;
-			} else {
-				printf("[!] error: frameskip option must be a nummeric value!\n\n");
-
-				usage(argv[0]);
-			}
-		} else if(!strcmp(argv[i],"-scale")) {
-			chr_check_result = str_chrchk(argv[i+1],"0123456789");
-
-			if((chr_check_result > 0) && (strlen(argv[i+1]) == chr_check_result)) {
-				scale = atoi(argv[i+1]);
-
-				i++;
-			} else {
-				printf("[!] error: scale option must be a nummeric value!\n\n");
-
-				usage(argv[0]);
-			}
-		} else if(!strcmp(argv[i],"-fullscreen")) {
-			fullscreen = 1;
-		} else if(!strcmp(argv[i],"-delay")) {
-			chr_check_result = str_chrchk(argv[i+1],"0123456789");
-
-			if((chr_check_result > 0) && (strlen(argv[i+1]) == chr_check_result)) {
-				sdl_delay = atoi(argv[i+1]);
-
-				i++;
-			} else {
-				printf("[!] error: delay option must be a nummeric value!\n\n");
-
-				usage(argv[0]);
-			}
-		} else if(!strcmp(argv[i],"-pal")) {
-			pal = 1;
-			ntsc = 0;
-		} else if(!strcmp(argv[i],"-ntsc")) {
-			pal = 0;
-			ntsc = 1;
-		} else {
-			printf("[!] error: unknown option %s\n\n",argv[i]);
-
-			usage(argv[0]);
-		}
-	}
-
 	/* 64k main memory */
 	memory = (unsigned char *)malloc(65536);
 
@@ -755,7 +660,7 @@ int main(int argc, char *argv[]) {
 	/* 256b sprite memory */
 	sprite_memory = (unsigned char *)malloc(256);
 
-	if(analyze_header(romfn) == 1) {
+	if(analyze_header(get_mario_rom(), get_mario_rom_size()) == 1) {
 		free(sprite_memory);
 		free(ppu_memory);
 		free(memory);
@@ -771,7 +676,7 @@ int main(int argc, char *argv[]) {
 
 	printf("[*] mapper: %d found!\n",MAPPER);
 
-	if(load_rom(romfn) == 1) {
+	if(load_rom(get_mario_rom(), get_mario_rom_size())) {
 		free(sprite_memory);
 		free(ppu_memory);
 		free(memory);
