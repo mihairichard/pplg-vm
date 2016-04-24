@@ -10,6 +10,15 @@
 #include "lamenes.h"
 #include <thread>
 #include <memory>
+#include "system/buttons.h"
+#include "system/display.h"
+#include "system/sleep.h"
+#include <unistd.h>
+
+struct HelloTutorialModule : public pp::Module 
+{
+  pp::Instance* CreateInstance(PP_Instance instance);
+};
 
 class HelloTutorialInstance : public pp::Instance {
 public:
@@ -34,9 +43,10 @@ public:
 		}
 	}
 
-	void DidChangeView(const pp::View& view) {
-  		LogToConsole(PP_LOGLEVEL_LOG, "DidChangeView");
-		auto size = view.GetRect().size();
+	void InitDisplay(uint32_t status, int width, int height)
+	{
+  		LogToConsole(PP_LOGLEVEL_LOG, "InitDisplay");
+		pp::Size size(width, height);
 		context_ = pp::Graphics2D(this, size, true);
 		BindGraphics(context_);
 		image_ = pp::ImageData(this, PP_IMAGEDATAFORMAT_BGRA_PREMUL, size,false);
@@ -69,6 +79,20 @@ public:
 		pp::Var value(buf);
 		console->Log(pp_instance(), PP_LOGLEVEL_LOG, value.pp_var());
 	}
+
+	static HelloTutorialInstance* Get()
+	{
+		HelloTutorialModule *module = static_cast<HelloTutorialModule*>(HelloTutorialModule::Get());
+		auto inst_map = module->current_instances();
+		assert(inst_map.size() == 1);
+		auto inst_record = inst_map.begin();
+		return static_cast<HelloTutorialInstance*>(inst_record->second);
+	}
+
+	pp::CompletionCallbackFactory<HelloTutorialInstance>& CallbackFactory()
+	{
+		return cb_factory_;
+	}
 private:
 	pp::Graphics2D context_;
 	pp::ImageData image_;
@@ -76,11 +100,28 @@ private:
 	std::unique_ptr<std::thread> emuthread_;
 };
 
-struct HelloTutorialModule : public pp::Module {
-  pp::Instance* CreateInstance(PP_Instance instance) {
-    return new HelloTutorialInstance(instance);
-  }
-};
+void sleep_ms(uint32_t time_ms) 
+{
+	usleep(time_ms * 1000);
+}
+
+void display_init(uint16_t width, uint16_t height, DisplayType display_type, bool fullscreen)
+{
+	auto instance = HelloTutorialInstance::Get();
+	instance->Log("display_init(%d, %d)", width, height);
+	auto callback = instance->CallbackFactory().NewCallback(&HelloTutorialInstance::InitDisplay, width, height);
+	pp::Module::Get()->core()->CallOnMainThread(0, callback);
+}
+void display_lock(void) {}
+void display_set_pixel(uint16_t x, uint16_t y, uint8_t nes_color) {}
+void display_update(void) {}
+void display_unlock(void) {}
+void poll_buttons(void) {}
+
+pp::Instance* HelloTutorialModule::CreateInstance(PP_Instance instance)
+{
+	return new HelloTutorialInstance(instance);
+}
 
 namespace pp {
 Module* CreateModule() {
