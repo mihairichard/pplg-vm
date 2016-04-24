@@ -51,7 +51,6 @@
 #include "ppu.h"
 #include "input.h"
 
-#include "system/buttons.h"
 #include "system/display.h"
 #include "system/sleep.h"
 
@@ -386,12 +385,6 @@ start_emulation()
 		sleep_ms(sdl_delay);
 
 		skipframe++;
-
-		//if(!interrupt_flag) {
-		//	counter += IRQ(counter);
-		//}
-
-		poll_buttons();
 	}
 }
 
@@ -558,8 +551,6 @@ int lamenes_main(){
 	while(1) {
 		if(!pause_emulation)
 			start_emulation();
-
-		poll_buttons();
 	}
 
 	/* never reached */

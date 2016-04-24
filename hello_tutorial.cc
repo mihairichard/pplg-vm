@@ -10,10 +10,10 @@
 #include "lamenes.h"
 #include <thread>
 #include <memory>
-#include "system/buttons.h"
 #include "system/display.h"
 #include "system/sleep.h"
 #include "palette.h"
+#include "input.h"
 #include <unistd.h>
 
 struct HelloTutorialModule : public pp::Module 
@@ -26,7 +26,7 @@ public:
  	HelloTutorialInstance(PP_Instance instance) :
   	pp::Instance(instance),
 	cb_factory_(this) {
-		RequestInputEvents(PP_INPUTEVENT_CLASS_MOUSE | PP_INPUTEVENT_CLASS_KEYBOARD);
+		RequestInputEvents(PP_INPUTEVENT_CLASS_KEYBOARD);
 		auto tptr = std::unique_ptr<std::thread>(new std::thread([](){
 			lamenes_main();
 		}));
@@ -35,13 +35,58 @@ public:
 
 	bool HandleInputEvent(const pp::InputEvent& event) {
 		switch(event.GetType()) {
-			case PP_INPUTEVENT_TYPE_KEYDOWN: {
+			case PP_INPUTEVENT_TYPE_KEYUP:
+			case PP_INPUTEVENT_TYPE_KEYDOWN: 
+			{
 				pp::KeyboardInputEvent key_event(event);
-				Log("Keyboard input %d", key_event.GetKeyCode());
+				auto key_code = key_event.GetKeyCode();
+				bool is_pressed = (event.GetType() == PP_INPUTEVENT_TYPE_KEYDOWN);
+				return HandleKeyPress(key_code, is_pressed);
 			}
 			default:
 				return false;
 		}
+	}
+
+	bool HandleKeyPress(uint32_t key_code, bool press)
+	{
+		uint8_t nes_button = 0;
+		switch(key_code) {
+			case 0x28: /*DOWN*/
+				nes_button = 1;
+				break;
+			case 0x26: /*UP*/
+				nes_button = 2;
+				break;
+			case 0x25: /*LEFT*/
+				nes_button = 3;
+				break;
+			case 0x27: /*RIGHT*/
+				nes_button = 4;
+				break;
+			case 0x41: /*A(START)*/
+				nes_button = 5;
+				break;
+			case 0x53: /*S(SELECT)*/
+				nes_button = 6;
+				break;
+			case 0x5A: /*Z(A)*/
+				nes_button = 7;
+				break;
+			case 0x58: /*X(B)*/
+				nes_button = 8;
+				break;
+			default:
+				break;
+		}
+		if (nes_button != 0) {
+			if (press) {
+				set_input(nes_button);
+			} else {
+				clear_input(nes_button);
+			}
+	 	}
+		return (nes_button != 0);
 	}
 
 	void InitDisplay(uint32_t status, int width, int height)
@@ -140,8 +185,6 @@ void display_update(void)
 	auto callback = instance->CallbackFactory().NewCallback(&HelloTutorialInstance::Redraw);
 	pp::Module::Get()->core()->CallOnMainThread(0, callback);
 }
-
-void poll_buttons(void) {}
 
 pp::Instance* HelloTutorialModule::CreateInstance(PP_Instance instance)
 {
