@@ -349,7 +349,6 @@ start_emulation()
 		if(skipframe > frameskip)
 			skipframe = 0;
 
-		display_lock();
 		for(scanline = 0; scanline < 240; scanline++) {
 			if(!sprite_zero) {
 				check_sprite_hit(scanline);
@@ -371,7 +370,6 @@ start_emulation()
 		}
 
 		render_sprites();
-		display_unlock();
 
 		#ifdef DEBUG
 		if(debug_cnt > show_debug_cnt) {
