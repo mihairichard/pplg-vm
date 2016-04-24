@@ -15,7 +15,6 @@
 #include "system/sleep.h"
 #include "palette.h"
 #include <unistd.h>
-#include <mutex>
 
 struct HelloTutorialModule : public pp::Module 
 {
@@ -57,30 +56,23 @@ public:
 	
 	void SetPixelColor(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 	{
-		if (x > 100 || y > 100) return;
-		mutex_.lock();
+		if (x >= 256 || y >= 240) return;
 		uint32_t* pixptr = image_.GetAddr32({x, y});
 		*pixptr = 0xff000000 + 
 			(((uint32_t)r) << 16) +
 			(((uint32_t)g) << 8) +
 			(((uint32_t)b));
-		//Log("setting pixel at %d %d, addr 0x%x", x, y, pixptr);
-		mutex_.unlock();
 	}
 	
 	void Redraw(uint32_t status)
 	{
 		if (status != PP_OK) return;
-		//Log("Redraw");
-		mutex_.lock();
 		context_.PaintImageData(image_, {0, 0});
-		mutex_.unlock();
   		context_.Flush(cb_factory_.NewCallback(&HelloTutorialInstance::DidFlush));
 	}
 
 	void DidFlush(int32_t status)
 	{
-		//Log("DidFlush");
 	}
 
 	void Log(const char* format, ...) {
@@ -117,7 +109,6 @@ private:
 	pp::ImageData image_;
 	pp::CompletionCallbackFactory<HelloTutorialInstance> cb_factory_;
 	std::unique_ptr<std::thread> emuthread_;
-	std::mutex mutex_;
 };
 
 void sleep_ms(uint32_t time_ms) 
