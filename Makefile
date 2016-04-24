@@ -40,7 +40,7 @@ clean:
 	$(RM) hello_tutorial.pexe hello_tutorial.bc
 	$(RM) lamenes
 
-hello_tutorial.bc: hello_tutorial.cc $(LAMENES_SOURCES)
+hello_tutorial.bc: hello_tutorial.cc $(LAMENES_SOURCES) fakedesktop.cc
 	$(PNACL_CXX) -o $@ hello_tutorial.cc fakedesktop.cc $(LAMENES_SOURCES) -O2 $(CXXFLAGS) $(LDFLAGS)
 
 hello_tutorial.pexe: hello_tutorial.bc
