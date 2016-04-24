@@ -13,7 +13,9 @@
 #include "system/buttons.h"
 #include "system/display.h"
 #include "system/sleep.h"
+#include "palette.h"
 #include <unistd.h>
+#include <mutex>
 
 struct HelloTutorialModule : public pp::Module 
 {
@@ -50,18 +52,35 @@ public:
 		context_ = pp::Graphics2D(this, size, true);
 		BindGraphics(context_);
 		image_ = pp::ImageData(this, PP_IMAGEDATAFORMAT_BGRA_PREMUL, size,false);
-		for (int i=0; i < size.height(); i++) {
-			for (int j = 0; j < size.width(); j++) {
-				uint32_t* pptr = image_.GetAddr32({j, i});
-				*pptr = 0xff000000 + ((i+j)&0x00ffffff);
-			}
-		}
-		context_.ReplaceContents(&image_);
+		Redraw(0);
+	}
+	
+	void SetPixelColor(int x, int y, uint8_t r, uint8_t g, uint8_t b)
+	{
+		if (x > 100 || y > 100) return;
+		mutex_.lock();
+		uint32_t* pixptr = image_.GetAddr32({x, y});
+		*pixptr = 0xff000000 + 
+			(((uint32_t)r) << 16) +
+			(((uint32_t)g) << 8) +
+			(((uint32_t)b));
+		//Log("setting pixel at %d %d, addr 0x%x", x, y, pixptr);
+		mutex_.unlock();
+	}
+	
+	void Redraw(uint32_t status)
+	{
+		if (status != PP_OK) return;
+		//Log("Redraw");
+		mutex_.lock();
+		context_.PaintImageData(image_, {0, 0});
+		mutex_.unlock();
   		context_.Flush(cb_factory_.NewCallback(&HelloTutorialInstance::DidFlush));
 	}
 
-	void DidFlush(int32_t status) {
-  		Log("DidFlush %d", status);
+	void DidFlush(int32_t status)
+	{
+		//Log("DidFlush");
 	}
 
 	void Log(const char* format, ...) {
@@ -98,6 +117,7 @@ private:
 	pp::ImageData image_;
 	pp::CompletionCallbackFactory<HelloTutorialInstance> cb_factory_;
 	std::unique_ptr<std::thread> emuthread_;
+	std::mutex mutex_;
 };
 
 void sleep_ms(uint32_t time_ms) 
@@ -112,10 +132,24 @@ void display_init(uint16_t width, uint16_t height, DisplayType display_type, boo
 	auto callback = instance->CallbackFactory().NewCallback(&HelloTutorialInstance::InitDisplay, width, height);
 	pp::Module::Get()->core()->CallOnMainThread(0, callback);
 }
+
 void display_lock(void) {}
-void display_set_pixel(uint16_t x, uint16_t y, uint8_t nes_color) {}
-void display_update(void) {}
 void display_unlock(void) {}
+
+void display_set_pixel(uint16_t x, uint16_t y, uint8_t nes_color)
+{
+	auto instance = HelloTutorialInstance::Get();
+	const Palette& p = ::palette[nes_color];
+	instance->SetPixelColor(x, y, p.r, p.g, p.b);
+}
+
+void display_update(void)
+{
+	auto instance = HelloTutorialInstance::Get();
+	auto callback = instance->CallbackFactory().NewCallback(&HelloTutorialInstance::Redraw);
+	pp::Module::Get()->core()->CallOnMainThread(0, callback);
+}
+
 void poll_buttons(void) {}
 
 pp::Instance* HelloTutorialModule::CreateInstance(PP_Instance instance)
