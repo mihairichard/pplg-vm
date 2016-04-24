@@ -1,6 +1,14 @@
 
-LAMENES_SOURCES	= lamenes.c lame6502/lame6502.c lame6502/disas.c romloader.c ppu.c input.c mario_nes.c
-DESKTOP_SOURCES = $(wildcard system/desktop/*.c)
+LAMENES_SOURCES	= lamenes.cc\
+		lame6502/lame6502.cc\
+		lame6502/disas.cc\
+		romloader.cc\
+		ppu.cc\
+		input.cc\
+		mario_nes.cc\
+		system/desktop/buttons.cc\
+		system/desktop/display.cc\
+		system/desktop/sleep.cc
 CC = gcc
 CFLAGS = -O3 -fomit-frame-pointer -Wall -I/usr/local/include -I. `sdl2-config --cflags`
 LDFLAGS_NES = -L/usr/local/lib -L/usr/X11R6/lib `sdl2-config --libs`
@@ -33,7 +41,7 @@ clean:
 	$(RM) lamenes
 
 hello_tutorial.bc: hello_tutorial.cc
-	$(PNACL_CXX) -o $@ $< -O2 $(CXXFLAGS) $(LDFLAGS)
+	$(PNACL_CXX) -o $@ hello_tutorial.cc lamenes.c -O2 $(CXXFLAGS) $(LDFLAGS)
 
 hello_tutorial.pexe: hello_tutorial.bc
 	$(PNACL_FINALIZE) -o $@ $<
@@ -42,6 +50,6 @@ hello_tutorial.pexe: hello_tutorial.bc
 serve: all
 	python -m SimpleHTTPServer 8000
 	
-lamenes: $(LAMENES_SOURCES) $(DESKTOP_SOURCES)
-	$(CC) -o lamenes $(CFLAGS) $(LAMENES_SOURCES) $(DESKTOP_SOURCES) $(LDFLAGS_NES)
+lamenes: $(LAMENES_SOURCES) 
+	$(CC) -o lamenes $(CFLAGS) $(LAMENES_SOURCES) $(LDFLAGS_NES)
 
