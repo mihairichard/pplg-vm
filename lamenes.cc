@@ -432,7 +432,7 @@ quit_emulation()
 	exit(0);
 }
 
-int _main(int argc, char *argv[]) {
+int lamenes_main(){
 	int chr_check_result;
 
 	int i;

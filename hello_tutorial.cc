@@ -7,6 +7,9 @@
 #include "ppapi/cpp/completion_callback.h"
 #include "ppapi/cpp/input_event.h"
 #include "ppapi/utility/completion_callback_factory.h"
+#include "lamenes.h"
+#include <thread>
+#include <memory>
 
 class HelloTutorialInstance : public pp::Instance {
 public:
@@ -14,6 +17,10 @@ public:
   	pp::Instance(instance),
 	cb_factory_(this) {
 		RequestInputEvents(PP_INPUTEVENT_CLASS_MOUSE | PP_INPUTEVENT_CLASS_KEYBOARD);
+		auto tptr = std::unique_ptr<std::thread>(new std::thread([](){
+			lamenes_main();
+		}));
+		emuthread_ = std::move(tptr);
 	}
 
 	bool HandleInputEvent(const pp::InputEvent& event) {
@@ -66,6 +73,7 @@ private:
 	pp::Graphics2D context_;
 	pp::ImageData image_;
 	pp::CompletionCallbackFactory<HelloTutorialInstance> cb_factory_;
+	std::unique_ptr<std::thread> emuthread_;
 };
 
 struct HelloTutorialModule : public pp::Module {

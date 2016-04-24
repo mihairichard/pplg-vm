@@ -66,3 +66,4 @@ void write_memory(unsigned int address,unsigned char data);
 void reset_emulation();
 void quit_emulation();
 
+int lamenes_main();
