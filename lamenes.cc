@@ -432,7 +432,7 @@ quit_emulation()
 	exit(0);
 }
 
-int main(int argc, char *argv[]) {
+int _main(int argc, char *argv[]) {
 	int chr_check_result;
 
 	int i;

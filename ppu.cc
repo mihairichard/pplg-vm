@@ -33,7 +33,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <SDL2/SDL.h>
 
 #include "lame6502/lame6502.h"
 #include "lame6502/disas.h"
