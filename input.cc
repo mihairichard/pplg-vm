@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "lamenes.h"
+#include "emulator.h"
 
 uint8_t pad1_DOWN;
 uint8_t pad1_UP;

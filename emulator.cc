@@ -9,7 +9,7 @@
 #include "instructions.h"
 
 #include "macros.h"
-#include "lamenes.h"
+#include "emulator.h"
 #include "romloader.h"
 #include "ppu.h"
 #include "input.h"
@@ -372,21 +372,7 @@ reset_emulation()
 	start_emulation();
 }
 
-void
-quit_emulation()
-{
-	/* free all memory */
-	free(sprite_memory);
-	free(ppu_memory);
-	free(memory);
-	free(romcache);
-
-	printf("[!] quiting LameNES!\n\n");
-
-	exit(0);
-}
-
-int lamenes_main(){
+int emulator_main(){
 	int chr_check_result;
 
 	int i;
@@ -492,8 +478,6 @@ int lamenes_main(){
 	 * reset joystick
 	 */
 	reset_input();
-
-	printf("[*] LameNES starting emulation!\n");
 
 	if(pal == 1) {
 		start_int = 341;

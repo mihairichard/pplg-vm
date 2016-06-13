@@ -1,5 +1,5 @@
 
-SOURCES	= lamenes.cc\
+SOURCES	= emulator.cc\
 	cpu.cc\
 	romloader.cc\
 	ppu.cc\

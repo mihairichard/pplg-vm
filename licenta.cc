@@ -7,7 +7,7 @@
 #include "ppapi/cpp/completion_callback.h"
 #include "ppapi/cpp/input_event.h"
 #include "ppapi/utility/completion_callback_factory.h"
-#include "lamenes.h"
+#include "emulator.h"
 #include <thread>
 #include <memory>
 #include "display.h"
@@ -28,7 +28,7 @@ public:
 	cb_factory_(this) {
 		RequestInputEvents(PP_INPUTEVENT_CLASS_KEYBOARD);
 		auto tptr = std::unique_ptr<std::thread>(new std::thread([](){
-			lamenes_main();
+			emulator_main();
 		}));
 		emuthread_ = std::move(tptr);
 	}

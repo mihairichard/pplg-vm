@@ -7,7 +7,7 @@
 
 #include "display.h"
 
-#include "lamenes.h"
+#include "emulator.h"
 #include "ppu.h"
 #include "macros.h"
 #include "romloader.h"

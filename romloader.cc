@@ -4,7 +4,7 @@
 
 #include "cpu.h"
 
-#include "lamenes.h"
+#include "emulator.h"
 #include "romloader.h"
 
 /* pointers to the nes headers */

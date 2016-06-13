@@ -7,7 +7,7 @@
 
 #include "instructions.h"
 
-#include "lamenes.h"
+#include "emulator.h"
 
 /*
  * system ram
@@ -68,7 +68,6 @@ int carry_flag;		/* this holds the "carry" out of the most significant bit of th
 
 int cycle_count;
 
-/* used in LameNES */
 int startdebugger = 0;
 int breakpoint = 0;
 int hit_break = 0;
