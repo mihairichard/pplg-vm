@@ -27,15 +27,15 @@ LDFLAGS := -L$(NACL_SDK_ROOT)/lib/pnacl/Release -lppapi_cpp -lppapi
 
 
 # Declare the ALL target first, to make the 'all' target the default build
-all: hello_tutorial.pexe
+all: licenta.pexe
 
 clean:
-	$(RM) hello_tutorial.pexe hello_tutorial.bc
+	$(RM) licenta.pexe licenta.bc
 
-hello_tutorial.bc: hello_tutorial.cc $(LAMENES_SOURCES) 
-	$(PNACL_CXX) -o $@ hello_tutorial.cc $(LAMENES_SOURCES) -O2 $(CXXFLAGS) $(LDFLAGS)
+licenta.bc: licenta.cc $(LAMENES_SOURCES) 
+	$(PNACL_CXX) -o $@ licenta.cc $(LAMENES_SOURCES) -O2 $(CXXFLAGS) $(LDFLAGS)
 
-hello_tutorial.pexe: hello_tutorial.bc
+licenta.pexe: licenta.bc
 	$(PNACL_FINALIZE) -o $@ $<
 
 .PHONY: serve
