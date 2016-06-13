@@ -1,7 +1,3 @@
-/*
- * instructions.h - 6502 cpu instruction macros
- */
-
 #define ADC_IM(CYCLES)		{ addr = memory[program_counter]; \
 					tmp = accumulator + addr + (carry_flag ? 1 : 0); \
 					overflow_flag = (~(accumulator ^ addr)) & (accumulator ^ addr) & 0x80; \

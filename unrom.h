@@ -1,7 +1,3 @@
-/*
- * unrom.h - NES Mapper 2: UNROM
- */
-
 void
 unrom_switch_prg(int bank)
 {

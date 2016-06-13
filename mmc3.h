@@ -1,7 +1,3 @@
-/*
- * mmc3.h - NES Mapper 4: MMC3
- */
-
 unsigned char mmc3_cmd;
 
 int mmc3_prg_bank0 = 0;

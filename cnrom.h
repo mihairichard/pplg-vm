@@ -1,7 +1,3 @@
-/*
- * cnrom.h - NES Mapper 3: CNROM
- */
-
 void
 cnrom_switch_chr(int bank)
 {

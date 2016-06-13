@@ -1,7 +1,3 @@
-/*
- * opcodes.h - 6502 opcode handler
- */
-
 /* ADC  -  Add to Accumulator with Carry */
 case 0x69: ADC_IM(2);
 case 0x65: ADC_ZP(3);
