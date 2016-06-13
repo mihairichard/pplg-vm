@@ -1,16 +1,5 @@
 #pragma once
 
-/*
- * &0x80 = D7
- * &0x40 = D6
- * &0x20 = D5
- * &0x10 = D4
- * &0x08 = D3
- * &0x04 = D2
- * &0x02 = D1
- * &0x01 = D0
- */
-
 /* memory[0x2000] */
 #define exec_nmi_on_vblank	(ppu_control1 & 0x80) /* 1 = Generate VBlank NMI */
 #define sprite_16		(ppu_control1 & 0x20) /* 1 = Sprites 8x16/8x8 */

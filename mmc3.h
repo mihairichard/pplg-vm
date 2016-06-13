@@ -27,14 +27,7 @@ void
 mmc3_switch_prg(unsigned int address, int bank)
 {
 	int prg_size;
-
 	prg_size = 8192;
-
-	#ifdef MAPPER_DEBUG
-	printf("[%d] prg_switch: reading from %d (offset: %x) into mem address: %x (bank: %d)\n",
-		debug_cnt,16 + (bank * prg_size),16 + (bank *prg_size),address,bank);
-	#endif
-
 	memcpy(memory + address, romcache + 16 + (bank * prg_size), prg_size); 
 }
 
@@ -50,11 +43,6 @@ mmc3_switch_chr(unsigned int address, int bank, int pagecount)
 
 	chr_start = prg_size * PRG;
 
-	#ifdef MAPPER_DEBUG
-	printf("[%d] chr_switch: reading from %d (offset: %x) into mem address: %x (bank: %d, pagecount: %d)\n",
-		debug_cnt,16 + chr_start + (bank * chr_size),16 + chr_start + (bank * chr_size),address,bank,pagecount);
-	#endif
-
 	memcpy(ppu_memory + address, romcache + 16 + chr_start + (bank * chr_size), chr_size * pagecount); 
 }
 
@@ -63,10 +51,6 @@ mmc3_access(unsigned int address,unsigned char data)
 {
 	switch(address) {
 		case 0x8000:
-		#ifdef MAPPER_DEBUG
-		printf("[%d] mmc3 access: 0x8000\n",debug_cnt);
-		#endif
-
 		/* store command */
 		mmc3_cmd = data;
 
@@ -96,9 +80,6 @@ mmc3_access(unsigned int address,unsigned char data)
 		break;
 
 		case 0x8001:
-		#ifdef MAPPER_DEBUG
-		printf("[%d] mmc3 access: 0x8001\n",debug_cnt);
-		#endif
 
 		/* exec command (bit 0-2)*/
 		switch(mmc3_cmd & 0x07){
@@ -169,10 +150,6 @@ mmc3_access(unsigned int address,unsigned char data)
 		break;
 
 		case 0xa000:
-		#ifdef MAPPER_DEBUG
-		printf("[%d] mmc3 access: 0xa000\n",debug_cnt);
-		#endif
-
 		/* set horizontal/vertical mirroring */
 		if(data & 0x01) {
 			/* set to vertical */
@@ -184,47 +161,27 @@ mmc3_access(unsigned int address,unsigned char data)
 		break;
 
 		case 0xa001:
-		#ifdef MAPPER_DEBUG
-		printf("[%d] mmc3 access: 0xa001\n",debug_cnt);
-		#endif
-
 		if(data)
 			SRAM = 1;
 		break;
 
 		case 0xc000:
-		#ifdef MAPPER_DEBUG
-		printf("[%d] mmc3 access: 0xc000, irq_counter = %x\n",debug_cnt,data);
-		#endif
-
 		/* set IRQ counter */
 		if(mmc3_irq_enable == 0)
 			mmc3_irq_counter = data;
 		break;
 
 		case 0xc001:
-		#ifdef MAPPER_DEBUG
-		printf("[%d] mmc3 access: 0xc001, irq_latch = %x\n",debug_cnt,data);
-		#endif
-
 		/* set IRQ tmp latch */
 		mmc3_irq_latch = data;
 		break;
 
 		case 0xe000:
-		#ifdef MAPPER_DEBUG
-		printf("[%d] mmc3 access: 0xe000, disable irq's\n",debug_cnt);
-		#endif
-
 		mmc3_irq_counter = mmc3_irq_latch;
 		mmc3_irq_enable = 0;
 		break;
 
 		case 0xe001:
-		#ifdef MAPPER_DEBUG
-		printf("[%d] mmc3 access: 0xe001, enable irq's\n",debug_cnt);
-		#endif
-
 		mmc3_irq_enable = 1;
 		break;
 	}

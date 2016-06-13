@@ -68,10 +68,8 @@ int carry_flag;		/* this holds the "carry" out of the most significant bit of th
 
 int cycle_count;
 
-int startdebugger = 0;
 int breakpoint = 0;
 int hit_break = 0;
-int stop_at_debug_cnt = 0;
 
 void
 update_status_register()

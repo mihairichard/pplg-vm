@@ -41,7 +41,6 @@ unsigned int sprite_address = 0x00;
 /* used to flip between first and second write (0x2005) */
 unsigned int ppu_bgscr_f = 0x00;
 
-/* used to export the current scanline for the debugger */
 int current_scanline;
 
 void
@@ -59,12 +58,6 @@ write_ppu_memory(unsigned int address,unsigned char data)
 		loopyT &= 0xf3ff; // (0000110000000000)
 		loopyT |= (data & 3) << 10; // (00000011)
 
-		#ifdef PPU_MEM_DEBUG
-		if(debug_cnt > show_debug_cnt) {
-			printf("[%d] 0x2000 = %x, loopyT: %x\n",debug_cnt,data,loopyT);
-		}
-		#endif
-
 		return;
         }
 
@@ -73,12 +66,6 @@ write_ppu_memory(unsigned int address,unsigned char data)
 
 		ppu_control2 = data;
 		memory[address] = data;
-
-		#ifdef PPU_MEM_DEBUG
-		if(debug_cnt > show_debug_cnt) {
-			printf("[%d] 0x2001 = %x, loopyT: %x\n",debug_cnt,data,loopyT);
-		}
-		#endif
 
 		return;
         }
@@ -90,24 +77,12 @@ write_ppu_memory(unsigned int address,unsigned char data)
 		sprite_address = data;
 		memory[address] = data;
 
-		#ifdef PPU_MEM_DEBUG
-		if(debug_cnt > show_debug_cnt) {
-			printf("[%d] 0x2003 -> sprite_addr = %x, data = %x\n",debug_cnt,sprite_address,data);
-		}
-		#endif
-
 		return;
 	}
 
 	/* sprite_memory i/o register */
 	if(address == 0x2004) {
 		ppu_addr_tmp = data;
-
-		#ifdef PPU_SPR_MEM_DEBUG
-		if(debug_cnt > show_debug_cnt) {
-			printf("[%d] 0x2004 -> sprite_addr = %x, data = %x\n",debug_cnt,sprite_address,data);
-		}
-		#endif
 
 		sprite_memory[sprite_address] = data;
 		sprite_address++;
@@ -125,12 +100,6 @@ write_ppu_memory(unsigned int address,unsigned char data)
 			loopyT |= (data & 0xF8) >> 3; // (11111000)
 			loopyX = data & 0x07; // (00000111)
 
-			#ifdef PPU_MEM_DEBUG
-			if(debug_cnt > show_debug_cnt) {
-				printf("[%d] 0x2005 first = %x, loopyT: %x\n",debug_cnt,data,loopyT);
-			}
-			#endif
-
 			ppu_bgscr_f = 0x01;
 
 			memory[address] = data;
@@ -143,12 +112,6 @@ write_ppu_memory(unsigned int address,unsigned char data)
 			loopyT |= (data & 0xF8) << 2; //(0111000000000000)
 			loopyT &= 0x8FFF; //(11111000)
 			loopyT |= (data & 0x07) << 12; // (00000111)
-
-			#ifdef PPU_MEM_DEBUG
-			if(debug_cnt > show_debug_cnt) {
-				printf("[%d] 0x2005 second = %x, loopyT: %x\n",debug_cnt,data,loopyT);
-			}
-			#endif
 
 			ppu_bgscr_f = 0x00;
 
@@ -169,13 +132,6 @@ write_ppu_memory(unsigned int address,unsigned char data)
 			loopyT &= 0x00FF; // (0011111100000000)
 			loopyT |= (data & 0x3F) << 8; // (1100000000000000) (00111111)
 
-			#ifdef PPU_MEM_DEBUG
-			if(debug_cnt > show_debug_cnt) {
-				printf("[%d] 0x2006 first = %x, ppu_addr = %x, loopyT: %x\n",
-					debug_cnt,data,ppu_addr,loopyT);
-			}
-			#endif
-
 			ppu_addr_h = 0x01;
 
 			memory[address] = data;
@@ -190,13 +146,6 @@ write_ppu_memory(unsigned int address,unsigned char data)
 			loopyT &= 0xFF00; // (0000000011111111)
 			loopyT |= data; // (11111111)
 			loopyV = loopyT; // v=t
-
-			#ifdef PPU_MEM_DEBUG
-			if(debug_cnt > show_debug_cnt) {
-				printf("[%d] 0x2006 second = %x, ppu_addr = %x, loopyT: %x\n",
-					debug_cnt,data,ppu_addr,loopyT);
-			}
-			#endif
 
 			ppu_addr_h = 0x00;
 
@@ -213,13 +162,6 @@ write_ppu_memory(unsigned int address,unsigned char data)
 			return;
 
 		ppu_addr_tmp = data;
-
-		#ifdef PPU_MEM_DEBUG
-		if(debug_cnt > show_debug_cnt) {
-			printf("[%d] 0x2007 -> writing [%x] to ppu_memory[%x]\n",debug_cnt,data,ppu_addr);
-		}
-		#endif
-
 		ppu_memory[ppu_addr] = data;
 
 		/* nametable mirroring */
@@ -260,13 +202,6 @@ write_ppu_memory(unsigned int address,unsigned char data)
 	/* transfer 256 bytes of memory into sprite_memory */
         if(address == 0x4014) {
 		for(i = 0; i < 256; i++) {
-			#ifdef PPU_SPR_MEM_DEBUG
-			if(debug_cnt > show_debug_cnt) {
-				printf("[%d] 0x4014 -> transfering data from mem address: 0x%x to spritememory 0x%x [data = %x]\n",
-					debug_cnt,0x100 * data + i,data + i,memory[0x100 * data + i]);
-			}
-			#endif
-
 			sprite_memory[i] = memory[0x100 * data + i];
 		}
 	}
@@ -301,12 +236,6 @@ render_background(int scanline)
 
 	current_scanline = scanline;
 
-	#ifdef SCANLINE_DEBUG
-	if(debug_cnt > show_debug_cnt) {
-		printf("[%d] --- start scanline: %d (%x) ---\n",debug_cnt,scanline,scanline);
-	}
-	#endif
-
 	/* loopy scanline start -> v:0000010000011111=t:0000010000011111 | v=t */
 	loopyV &= 0xfbe0;
 	loopyV |= (loopyT & 0x041f);
@@ -330,12 +259,6 @@ render_background(int scanline)
 			attribs = (ppu_memory[at_addr] & 0xC0) >> 4;
 		}
 	}
-
-	#ifdef SCANLINE_DEBUG
-	if(debug_cnt > show_debug_cnt) {
-		printf("[%d] nt_addr: %x, loopyT: %x, loopyV: %x, loopyX: %x\n",debug_cnt,nt_addr,loopyT,loopyV,loopyX);
-	}
-	#endif
 
 	/* draw 33 tiles in a scanline (32 + 1 for scrolling) */
 	for(tile_count = 0; tile_count < 33; tile_count++) {
@@ -528,24 +451,11 @@ render_background(int scanline)
 		/* next subtile y_offset */
 		loopyV += 0x1000;
 	}
-
-	#ifdef SCANLINE_DEBUG
-	if(debug_cnt > show_debug_cnt) {
-		printf("[%d] --- end scanline: %d (%x) ---\n",debug_cnt,scanline,scanline);
-	}
-	#endif
 }
 
 void
 render_sprite(int y, int x, int pattern_number, int attribs, int spr_nr)
 {
-	#ifdef SPRITE_RENDER_DEBUG
-	if(debug_cnt > show_debug_cnt) {
-		printf("[%d] (spritedebug [%d]): hor = %x, ver = %x, pattern_number = %d, attribs = %d\n", 
-			debug_cnt,spr_nr,x,y,pattern_number,attribs);
-	}
-	#endif
-
 	int color_bit1;
 	int color_bit2;
 	int disp_spr_back;
@@ -572,13 +482,6 @@ render_sprite(int y, int x, int pattern_number, int attribs, int spr_nr)
 	unsigned char bit2[8] [16];
 	unsigned char sprite[8] [16];
 
-	#ifdef SPRITE_RENDER_DEBUG
-	if(debug_cnt > show_debug_cnt) {
-		printf("[%d] (spritedebug [%d]): attribs [%x] -> color_bit1 [%x] -> color_bit2 [%x] -> disp_spr_back [%d] -> flip_spr_hor [%d] -> flip_spr_ver [%d]\n",
-			debug_cnt,spr_nr,attribs,color_bit1,color_bit2,disp_spr_back,flip_spr_hor,flip_spr_ver);
-	}
-	#endif
-
 	if(!sprite_addr_hi) {
 		sprite_pattern_table=0x0000;
 	} else {
@@ -587,13 +490,6 @@ render_sprite(int y, int x, int pattern_number, int attribs, int spr_nr)
 
 	/* - pattern_number * 16 */
 	spr_start = sprite_pattern_table + ((pattern_number << 3) << 1);
-
-	#ifdef SPRITE_RENDER_DEBUG
-	if(debug_cnt > show_debug_cnt) {
-		printf("[%d] (spritedebug [%d]): pattern_number = %d [hex %x], sprite_patterntable start addr = %x, ppu mem value = %x\n",
-			debug_cnt,spr_nr, pattern_number, pattern_number, sprite_pattern_table + (pattern_number * 16), ppu_memory[sprite_pattern_table + (pattern_number * 16)]);
-	}
-	#endif
 
 	if(!sprite_16) {
 		/* 8 x 8 sprites */
@@ -746,12 +642,6 @@ render_sprite(int y, int x, int pattern_number, int attribs, int spr_nr)
 					}
 				}
 
-				#ifdef SPRITE_RENDER_DEBUG
-				if(debug_cnt > show_debug_cnt) {
-					printf("[%d] (spritedebug [%d]): drawing pixel on place [%d] on scanline [%d] with nes color [%x] on ppu_mem [%x]\n",
-					debug_cnt,spr_nr,y + i, x + j,ppu_memory[0x3f10 + (sprite[i] [j])],0x3f10 + (sprite[i] [j]));
-				}
-				#endif
 			}
 		}
 	} else {
@@ -905,12 +795,6 @@ render_sprite(int y, int x, int pattern_number, int attribs, int spr_nr)
 					}
 				}
 
-				#ifdef SPRITE_RENDER_DEBUG
-				if(debug_cnt > show_debug_cnt) {
-					printf("debug [%d] (spritedebug [%d]): drawing pixel on place [%d] on scanline [%d] with nes color [%x] on ppu_mem [%x]\n",
-						debug_cnt,spr_nr,y + i, x + j,ppu_memory[0x3f10 + (sprite[i] [j])],0x3f10 + (sprite[i] [j]));
-				}
-				#endif
 			}
 		}
 	}
@@ -924,11 +808,6 @@ check_sprite_hit(int scanline)
 
 	for(i = 0; i < width; i++) {
 		if((bgcache[i] [scanline - 1] > 0x00) && (sprcache[i] [scanline - 1] > 0x00)) {
-			#ifdef PPU_DEBUG
-			printf("debug [%d]: sprite zero found at x:%d, y:%d\n",
-				debug_cnt,i,scanline-1);
-			#endif
-
 			/* set the sprite zero flag */
 			ppu_status |= 0x40;
 		}

@@ -159,13 +159,6 @@ unsigned char memory_read(unsigned int address) {
 			break;
 		}
 
-		#ifdef PAD_DEBUG
-		printf("debug [%d]: pad1_A -> %d, pad1_B -> %d, pad1_SELECT -> %d, pad1_START -> %d, pad1_UP -> %d, pad1_DOWN -> %d, pad1_LEFT -> %d, pad1_RIGHT -> %d\n",
-			debug_cnt,pad1_A,pad1_B,pad1_SELECT,pad1_START,pad1_UP,pad1_DOWN,pad1_LEFT,pad1_RIGHT);
-
-		printf("debug [%d]: pad1_readcount = %d, read joydata = %d [hex: %x]\n",debug_cnt,pad1_readcount,memory[address],memory[address]);
-		#endif
-
 		return memory[address];
 	}
 
@@ -267,7 +260,6 @@ start_emulation()
 
 
 	while(CPU_is_running) {
-//printf("[%d] 1 counter = %d / pvi = %d (counter - PAL_VBLANK_INT = %d)\n",debug_cnt,counter,PAL_VBLANK_INT + 341,(counter - (PAL_VBLANK_INT + 341)));
 		CPU_execute(start_int);
 
 		/* set ppu_status D7 to 1 and enter vblank */
@@ -276,30 +268,11 @@ start_emulation()
 
 		counter += CPU_execute(12); // needed for some roms
 
-		#ifdef DEBUG
-		if(debug_cnt > show_debug_cnt) {
-			printf("debug [%d] --- entering VBLANK! ---\n",debug_cnt);
-			printf("ppu_status: %x\n",ppu_status);
-		}
-		#endif
-
 		if(exec_nmi_on_vblank) {
-			#ifdef DEBUG
-			if(debug_cnt > show_debug_cnt) {
-				printf("[%d] vblank = on\n",debug_cnt);
-			}
-			#endif
-
 			counter += NMI(counter);
 		}
 
 		counter += CPU_execute(vblank_cycle_timeout);
-
-		#ifdef DEBUG
-		if(debug_cnt > show_debug_cnt) {
-			printf("[%d] --- leaving VBLANK! ---\n",debug_cnt);
-		}
-		#endif
 
 		/* vblank ends (ppu_status D7) is set to 0, sprite_zero (ppu_status D6) is set to 0 */
 		ppu_status &= 0x3F;
@@ -323,22 +296,13 @@ start_emulation()
 
 			if(mmc3_irq_enable == 1) {
 				if(scanline == mmc3_irq_counter) {
-					//printf("[%d] mmc3_irq_counter = %d\n",debug_cnt,mmc3_irq_counter);
 					IRQ(counter);
 					mmc3_irq_counter--;
-
-					//break;
 				}
 			}
 		}
 
 		render_sprites();
-
-		#ifdef DEBUG
-		if(debug_cnt > show_debug_cnt) {
-			printf("[%d]: *** UPDATING SCREEN ***\n",debug_cnt);
-		}
-		#endif
 
 		if(skipframe == 0)
 			display_update();

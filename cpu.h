@@ -21,14 +21,8 @@ extern int carry_flag;
 
 extern int disassemble;
 extern int hit_break;
-extern int startdebugger;
 
 extern int breakpoint;
-extern int stop_at_debug_cnt;
-extern int stackdebug;
-
-//unsigned char memory_read(unsigned int address);
-//void write_memory(unsigned int address,unsigned char data);
 
 int IRQ(int cycles);
 int NMI(int cycles);

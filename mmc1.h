@@ -40,12 +40,6 @@ mmc1_switch_prg(int bank, int pagesize, int area)
 		fprintf(stdout,"[!] error prg pagesize incorrect!\n");
 		exit(1);
 	}
-
-	#ifdef MAPPER_DEBUG
-	printf("[%d] prg_switch: reading from %d (offset: %x) into mem address: %x (bank: %d, pagesize: %d, area: %d)\n",
-		debug_cnt,16 + (bank * prg_size),16 + (bank *prg_size),address,bank + 1,pagesize,area);
-	#endif
-
 	memcpy(memory + address, romcache + 16 + (bank * prg_size), prg_size); 
 }
 
@@ -79,21 +73,12 @@ mmc1_switch_chr(int bank, int pagesize, int area) {
 		exit(1);
 	}
 
-	#ifdef MAPPER_DEBUG
-	printf("[%d] chr_switch: reading from offset: %x, into mem address: %x (bank: %d, pagesize: %d, area: %d)\n",
-		debug_cnt,16 + chr_start + (bank * prg_size),address,bank,pagesize,area);
-	#endif
-
 	memcpy(ppu_memory + address, romcache + 16 + chr_start + (bank * chr_size), chr_size); 
 }
 
 void
 mmc1_access(unsigned int address,unsigned char data)
 {
-	#ifdef MAPPER_DEBUG
-	printf("[%d] mmc1 access: 0x%x\n",debug_cnt,address);
-	#endif
-
 	if(address > 0x7fff && address < 0xa000) {
 		if(data & 0x80) {
 			/* reset register */
@@ -150,11 +135,6 @@ mmc1_access(unsigned int address,unsigned char data)
 
 			mmc1_reg0_data = 0;
 			mmc1_reg0_bitcount = 0;
-
-			#ifdef MAPPER_DEBUG
-			printf("[%d] MIRRORING -> %d, OS_MIRROR -> %d, mmc1_PRGROM_area_switch -> %d, mmc1_PRGROM_bank_switch -> %d,mmc1_CHRROM_bank_switch -> %d\n",
-				debug_cnt,MIRRORING,OS_MIRROR,mmc1_PRGROM_area_switch,mmc1_PRGROM_bank_switch,mmc1_CHRROM_bank_switch);
-			#endif
 		}
 
 	}
@@ -167,11 +147,6 @@ mmc1_access(unsigned int address,unsigned char data)
 		} else {
 			mmc1_reg1_bitcount++;
 			mmc1_reg1_data |= (data & 0x01) << mmc1_reg1_bitcount;
-
-			#ifdef MAPPER_DEBUG
-			printf("[%d] mmc1_reg1_bitcount = %d, mmc1_reg1_data = %x\n",
-				debug_cnt,mmc1_reg1_bitcount,mmc1_reg1_data);
-			#endif
 		}
 
 		if(mmc1_reg1_bitcount == 5) {
@@ -192,11 +167,6 @@ mmc1_access(unsigned int address,unsigned char data)
 		} else {
 			mmc1_reg2_bitcount++;
 			mmc1_reg2_data |= (data & 0x01) << mmc1_reg2_bitcount;
-
-			#ifdef MAPPER_DEBUG
-			printf("[%d] mmc1_reg2_bitcount = %d, mmc1_reg2_data = %x\n",
-				debug_cnt,mmc1_reg2_bitcount,mmc1_reg2_data);
-			#endif
 		}
 
 		if(mmc1_reg2_bitcount == 5) {
@@ -217,11 +187,6 @@ mmc1_access(unsigned int address,unsigned char data)
 		} else {
 			mmc1_reg3_bitcount++;
 			mmc1_reg3_data |= (data & 0x01) << mmc1_reg3_bitcount;
-
-			#ifdef MAPPER_DEBUG
-			printf("[%d] mmc1_reg3_bitcount = %d, mmc1_reg3_data = %x\n",
-				debug_cnt,mmc1_reg3_bitcount,mmc1_reg3_data);
-			#endif
 		}
 
 		if(mmc1_reg3_bitcount == 5) {
