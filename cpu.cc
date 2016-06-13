@@ -110,9 +110,8 @@ NMI(int cycles)
 	program_counter = (memory[0xfffb] << 8) | memory[0xfffa];
 
 	if(program_counter == breakpoint) {
-		printf("breakpoint reached!\n");
-			hit_break = 1;
-			disassemble = 1;
+		hit_break = 1;
+		disassemble = 1;
 	}
 
 	return cycles -= 7;

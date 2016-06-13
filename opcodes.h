@@ -287,6 +287,4 @@ case 0x98: TRANSFER_REG(y_reg,accumulator,2);
 
 /* Unrecognized instructions */
 default:
-printf("error: unrecognized instruction %d\n",opcode);
-
 break;

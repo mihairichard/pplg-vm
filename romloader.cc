@@ -39,34 +39,14 @@ analyze_header(unsigned char* data, unsigned int size)
 	/* read the first 15 bytes of the rom */
 	memcpy(header, data, 15);
 
-	printf("[*] analyzing rom header...\n");
-
 	/* ines rom header must be: "NES\n" (HEX: 4E 45 53 1A), else exit */
 	if((header[0] != 'N') || (header[1] != 'E') || (header[2] != 'S') || (header[3] != 0x1A)) {
-		printf("[!] incorrect rom header\n");
 		free(header);
 		return(1);
 	}
 
-	/* ines rom header 8-15 must be 0x00 or 0xFF or games wil not work */
-	for(i = 8; i < 15; i++) {
-		if((header[i] != 0x00) && (header[i] != 0xFF)) {
-			printf("[!] notice rom header 8-15 is not empty\n");
-		}
-	}
-
-	printf("[*] detected rom size: %ldkb\n",romlen / 1024);
-
 	/* detect PRG */
-	printf("[*] %d x 16kb pages (PRG 0x%x) found!\n",header[4],header[4]);
 	PRG = header[4];
-
-	/* detect CHR */
-	if(header[5] == 0x00) {
-		printf("[*] no CHR (CHR 0x00) found (imbedded)!\n");
-	} else {
-		printf("[*] %d x 8kb pages (CHR 0x%x) found!\n",header[5],header[5]);
-	}
 
 	CHR = header[5];
 
@@ -209,7 +189,6 @@ analyze_header(unsigned char* data, unsigned int size)
 		break;
 
 		default:
-		printf("[!] RCB header corrupt?\n");
 		break;
 	}
 
@@ -222,8 +201,6 @@ int
 load_rom(unsigned char* data, unsigned int size)
 {
 	memcpy(romcache, data, size);
-
-	printf("[*] mapping rom...\n");
 
 	/* load prg data in memory */
 	if(PRG == 0x01) {

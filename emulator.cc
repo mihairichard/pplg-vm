@@ -313,29 +313,6 @@ start_emulation()
 	}
 }
 
-void
-reset_emulation()
-{
-	printf("[*] resetting emulation...\n");
-
-	if(load_rom(get_mario_rom(), get_mario_rom_size())) {
-		free(sprite_memory);
-		free(ppu_memory);
-		free(memory);
-		free(romcache);
-		exit(1);
-	}
-
-	if(MAPPER == 4)
-		mmc3_reset();
-
-	CPU_reset();
-
-	reset_input();
-
-	start_emulation();
-}
-
 int emulator_main(){
 	int chr_check_result;
 
@@ -376,12 +353,6 @@ int emulator_main(){
 	/* rom cache memory */
 	romcache = (unsigned char *)malloc(romlen);
 
-	printf("[*] PRG = %x, CHR = %x, OS_MIRROR = %d, FS_MIRROR = %d, TRAINER = %d"
-		", SRAM = %d, MIRRORING = %d\n",
-		PRG,CHR,OS_MIRROR, FS_MIRROR,TRAINER,SRAM,MIRRORING);
-
-	printf("[*] mapper: %d found!\n",MAPPER);
-
 	if(load_rom(get_mario_rom(), get_mario_rom_size())) {
 		free(sprite_memory);
 		free(ppu_memory);
@@ -406,32 +377,12 @@ int emulator_main(){
 	sdl_screen_height = height * scale;
 	sdl_screen_width = width * scale;
 
-	if(pal == 1) {
-		printf("[*] PAL_SPEED: %d\n",PAL_SPEED);
-		printf("[*] PAL_VBLANK_INT: %d\n",PAL_VBLANK_INT);
-		printf("[*] PAL_SCANLINE_REFRESH: %d\n",PAL_SCANLINE_REFRESH);
-		printf("[*] PAL_VBLANK_CYCLE_TIMEOUT: %d\n",PAL_VBLANK_CYCLE_TIMEOUT);
-		printf("[*] height * PAL_SCANLINE_REFRESH: %d\n",(height * PAL_SCANLINE_REFRESH) + PAL_VBLANK_CYCLE_TIMEOUT + 341);
-	}
-
-	if(ntsc == 1) {
-		printf("[*] NTSC_SPEED: %d\n",NTSC_SPEED);
-		printf("[*] NTSC_VBLANK_INT: %d\n",NTSC_VBLANK_INT);
-		printf("[*] NTSC_SCANLINE_REFRESH: %d\n",NTSC_SCANLINE_REFRESH);
-		printf("[*] NTSC_VBLANK_CYCLE_TIMEOUT: %d\n",NTSC_VBLANK_CYCLE_TIMEOUT);
-		printf("[*] height * NTSC_SCANLINE_REFRESH: %d\n",(height * NTSC_SCANLINE_REFRESH) + NTSC_VBLANK_CYCLE_TIMEOUT + 341);
-	}
-
-	printf("[*] setting screen resolution to: %dx%d\n",sdl_screen_width,sdl_screen_height);
-
 	DisplayType display_type = DisplayTypePAL;
 	if (ntsc == 1) {
 		display_type = DisplayTypeNTSC;
 	}
 
 	display_init(sdl_screen_width, sdl_screen_height, display_type, fullscreen == 1);
-
-	printf("[*] resetting cpu...\n");
 
 	/*
 	 * first reset the cpu at poweron

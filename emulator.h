@@ -32,6 +32,4 @@ extern long romlen;
 unsigned char memory_read(unsigned int address);
 void write_memory(unsigned int address,unsigned char data);
 
-void reset_emulation();
-
 int emulator_main();

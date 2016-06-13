@@ -33,11 +33,9 @@ mmc1_switch_prg(int bank, int pagesize, int area)
 		} else if(area == 1) {
 			address = 0x8000;
 		 } else {
-			fprintf(stdout,"[!] error prg area selection incorrect!\n");
 			exit(1);
 		}
 	} else {
-		fprintf(stdout,"[!] error prg pagesize incorrect!\n");
 		exit(1);
 	}
 	memcpy(memory + address, romcache + 16 + (bank * prg_size), prg_size); 
@@ -65,11 +63,9 @@ mmc1_switch_chr(int bank, int pagesize, int area) {
 		} else if(area == 1) {
 			address = 0x1000;
 		 } else {
-			fprintf(stdout,"[!] error chr area selection incorrect!\n");
 			exit(1);
 		}
 	} else {
-		fprintf(stdout,"[!] error chr pages incorrect!\n");
 		exit(1);
 	}
 

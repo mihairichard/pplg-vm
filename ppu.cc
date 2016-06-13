@@ -171,7 +171,6 @@ write_ppu_memory(unsigned int address,unsigned char data)
 				ppu_memory[ppu_addr + 0x800] = data;
 				ppu_memory[ppu_addr + 0x1200] = data;
 			} else if(FS_MIRROR == 1) {
-				printf("FS_MIRRORING detected! do nothing\n");
 			} else {
 				if(MIRRORING == 0) {
 					/* horizontal */
