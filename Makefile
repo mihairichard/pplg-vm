@@ -1,10 +1,10 @@
 
-LAMENES_SOURCES	= lamenes.cc\
-		lame6502.cc\
-		romloader.cc\
-		ppu.cc\
-		input.cc\
-		mario_nes.cc
+SOURCES	= lamenes.cc\
+	cpu.cc\
+	romloader.cc\
+	ppu.cc\
+	input.cc\
+	mario_nes.cc
 NACL_SDK_ROOT ?= $(abspath $(HOME)/pepper)
 
 # Project Build flags
@@ -32,8 +32,8 @@ all: licenta.pexe
 clean:
 	$(RM) licenta.pexe licenta.bc
 
-licenta.bc: licenta.cc $(LAMENES_SOURCES) 
-	$(PNACL_CXX) -o $@ licenta.cc $(LAMENES_SOURCES) -O2 $(CXXFLAGS) $(LDFLAGS)
+licenta.bc: licenta.cc $(SOURCES) 
+	$(PNACL_CXX) -o $@ licenta.cc $(SOURCES) -O2 $(CXXFLAGS) $(LDFLAGS)
 
 licenta.pexe: licenta.bc
 	$(PNACL_FINALIZE) -o $@ $<

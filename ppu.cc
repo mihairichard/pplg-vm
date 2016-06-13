@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "lame6502.h"
+#include "cpu.h"
 
 #include "display.h"
 

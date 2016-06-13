@@ -1,7 +1,3 @@
-/*
- * lame6502.c - 6502 cpu functions and registers
- */
-
 #include <sys/types.h>
 #include <ctype.h>
 #include <stdio.h>

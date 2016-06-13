@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#include "lame6502.h"
+#include "cpu.h"
 #include "instructions.h"
 
 #include "macros.h"
