@@ -1,8 +1,3 @@
-//#define DEBUG
-//#define DISASSAMBLE
-//#define PAD_DEBUG
-//#define MAPPER_DEBUG
-
 #include <sys/types.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -11,7 +6,6 @@
 #include <stdlib.h>
 
 #include "lame6502/lame6502.h"
-#include "lame6502/disas.h"
 #include "lame6502/instructions.h"
 
 #include "macros.h"

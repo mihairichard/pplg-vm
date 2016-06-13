@@ -2,10 +2,6 @@
  * lame6502.c - 6502 cpu functions and registers
  */
 
-//#define DEBUG
-//#define DISASSAMBLE
-//#define STACK_DEBUG
-
 #include <sys/types.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -14,7 +10,6 @@
 #include <stdlib.h>
 
 #include "instructions.h"
-#include "disas.h"
 
 #include "../lamenes.h"
 
@@ -45,13 +40,6 @@ int disassemble = 1;
 #else
 int disassemble = 0;
 #endif
-
-#ifdef STACK_DEBUG
-int stackdebug = 1;
-#else
-int stackdebug = 0;
-#endif
-
 
 /* status_register flags */
 int zero_flag;		/* this is set if the last operation returned a result of zero */
@@ -98,21 +86,6 @@ update_status_register()
 			(break_flag ? 0x10 : 0) | 0x20);
 }
 
-// modifyed for lamenes
-/*
- * memory read handler
- */
-//unsigned char memory_read(unsigned int address) {
-//}
-
-/*
- * memory write handler
- */
-//void
-//write_memory(unsigned int address,unsigned char data)
-//{
-//}
-// end lamenes
 
 /* 
  * Maskable Interrupt
@@ -121,12 +94,6 @@ update_status_register()
 int
 IRQ(int cycles)
 {
-	#ifdef DEBUG
-	if(debug_cnt > show_debug_cnt) {
-		printf("[%d] executing IRQ routine\n",debug_cnt);
-	}
-	#endif
-
 	PUSH_ST((program_counter & 0xff00) >> 8);
 	PUSH_ST(program_counter & 0xff);
 	PUSH_ST(GET_SR());
@@ -142,12 +109,6 @@ IRQ(int cycles)
 int
 NMI(int cycles)
 {
-	#ifdef DEBUG
-	if(debug_cnt > show_debug_cnt) {
-		printf("[%d] executing NMI routine\n",debug_cnt);
-	}
-	#endif
-
 	PUSH_ST((program_counter & 0xff00) >> 8);
 	PUSH_ST(program_counter & 0xff);
 	PUSH_ST(GET_SR());
@@ -197,8 +158,6 @@ CPU_execute(int cycles) {
 
 	cycle_count = cycles;
 	do {
-		debug_cnt++;
-
 		update_status_register();
 
 		opcode=memory[program_counter++];

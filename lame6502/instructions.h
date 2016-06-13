@@ -731,14 +731,12 @@
 
 /* push accumulator on stack */
 #define PUSH_A(b, CYCLES)	{ write_memory(stack_pointer+0x100,(b)); \
-					if(stackdebug == 1) if(debug_cnt > show_debug_cnt) printf("[%d]: push stack = %x\n",debug_cnt-1,memory[stack_pointer+0x100]); \
 					stack_pointer--; \
 					cycle_count -= CYCLES; \
 					break; }
 
 /* pull accumulator off stack */
 #define PULL_A(b, CYCLES)	{ stack_pointer++; \
-					if(stackdebug == 1) if(debug_cnt > show_debug_cnt) printf("[%d]: pull stack = %x\n",debug_cnt-1,memory[stack_pointer+0x100]); \
 					b = memory_read(stack_pointer+0x100); \
 					sign_flag = b & 0x80; \
 					zero_flag = !(b); \
@@ -1069,12 +1067,10 @@
 
 /* stack push */
 #define PUSH_ST(b)		{ write_memory(stack_pointer+0x100,(b)); \
-					if(stackdebug == 1) if(debug_cnt > show_debug_cnt) printf("[%d]: push stack = %x\n",debug_cnt-1,memory[stack_pointer+0x100]); \
 					stack_pointer--; }
 
 /* stack pull */
 #define PULL_ST()		{ stack_pointer++; \
-					if(stackdebug == 1) if(debug_cnt > show_debug_cnt) printf("[%d]: pull stack = %x\n",debug_cnt-1,memory[stack_pointer+0x100]); \
 					addr=memory_read(stack_pointer+0x100); }
 
 /* get the cpu flags */

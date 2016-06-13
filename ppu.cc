@@ -4,7 +4,6 @@
 #include <unistd.h>
 
 #include "lame6502/lame6502.h"
-#include "lame6502/disas.h"
 
 #include "system/display.h"
 
@@ -13,12 +12,6 @@
 #include "macros.h"
 #include "romloader.h"
 #include "palette.h"
-
-//#define PPU_DEBUG
-//#define PPU_MEM_DEBUG
-//#define PPU_SPR_MEM_DEBUG
-//#define SCANLINE_DEBUG
-//#define SPRITE_RENDER_DEBUG
 
 /* gfx cache -> [hor] [ver] */
 unsigned char bgcache[256+8] [256+8];
