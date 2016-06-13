@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "lame6502/lame6502.h"
+#include "lame6502.h"
 
 #include "lamenes.h"
 #include "romloader.h"

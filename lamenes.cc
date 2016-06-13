@@ -5,8 +5,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#include "lame6502/lame6502.h"
-#include "lame6502/instructions.h"
+#include "lame6502.h"
+#include "instructions.h"
 
 #include "macros.h"
 #include "lamenes.h"
@@ -14,14 +14,14 @@
 #include "ppu.h"
 #include "input.h"
 
-#include "system/display.h"
-#include "system/sleep.h"
+#include "display.h"
+#include "sleep.h"
 
 /* included mappers */
-#include "mappers/mmc1.h"	// 1
-#include "mappers/unrom.h"	// 2
-#include "mappers/cnrom.h"	// 3
-#include "mappers/mmc3.h"	// 4
+#include "mmc1.h"	// 1
+#include "unrom.h"	// 2
+#include "cnrom.h"	// 3
+#include "mmc3.h"	// 4
 
 /* static rom, avoid loading from file */
 #include "mario_nes.h"

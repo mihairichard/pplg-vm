@@ -1,6 +1,6 @@
 
 LAMENES_SOURCES	= lamenes.cc\
-		lame6502/lame6502.cc\
+		lame6502.cc\
 		romloader.cc\
 		ppu.cc\
 		input.cc\

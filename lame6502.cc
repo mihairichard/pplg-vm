@@ -11,7 +11,7 @@
 
 #include "instructions.h"
 
-#include "../lamenes.h"
+#include "lamenes.h"
 
 /*
  * system ram

@@ -10,8 +10,8 @@
 #include "lamenes.h"
 #include <thread>
 #include <memory>
-#include "system/display.h"
-#include "system/sleep.h"
+#include "display.h"
+#include "sleep.h"
 #include "palette.h"
 #include "input.h"
 #include <unistd.h>

@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "lame6502/lame6502.h"
+#include "lame6502.h"
 
-#include "system/display.h"
+#include "display.h"
 
 #include "lamenes.h"
 #include "ppu.h"
